@@ -19,7 +19,7 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Gemini CLI Agent with Textual UI")
     parser.add_argument(
         "--thinking-level",
-        choices=sorted(THINKING_LEVEL_CHOICES.keys()),
+        choices=sorted(THINKING_LEVEL_CHOICES),
         default=DEFAULT_THINKING_LEVEL_KEY,
         help="Gemini thinking level to use for all interactions.",
     )

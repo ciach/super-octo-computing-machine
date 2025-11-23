@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from functools import partial
+import asyncio
 from typing import Optional
 
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Button, Input, Static, TextLog
+from textual.widgets import Button, Input, Log, Static
 
 from .agent import Agent, AgentReply, PendingToolCall
 
@@ -57,7 +57,7 @@ class CLIApp(App):
     def compose(self) -> ComposeResult:
         with Vertical(id="layout"):
             yield Static("Agent History", id="history-label")
-            yield TextLog(id="history", highlight=False, wrap=True)
+            yield Log(id="history")
             yield Input(placeholder="Type your command here...", id="inputbox")
             with Horizontal(id="controls"):
                 yield Button("Send", id="sendbtn")
@@ -68,10 +68,10 @@ class CLIApp(App):
     # Event handlers
     # ------------------------------------------------------------------
     async def on_mount(self) -> None:
-        self.query_one("#history", TextLog).write(
+        self.query_one("#history", Log).write_line(
             "Welcome to the Gemini CLI agent! Type 'exit' to quit."
         )
-        await self.query_one("#inputbox", Input).focus()
+        self.query_one("#inputbox", Input).focus()
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "sendbtn":
@@ -94,42 +94,51 @@ class CLIApp(App):
             return
         input_box.value = ""
 
-        history = self.query_one("#history", TextLog)
-        history.write(f"\nUser: {user_msg}")
+        history = self.query_one("#history", Log)
+        history.write_line("")
+        history.write_line(f"User: {user_msg}")
 
         if user_msg.lower() in {"exit", "quit"}:
             self.exit()
             return
 
-        reply = await self.call_in_thread(self.agent.handle_user_input, user_msg)
+        reply = await asyncio.to_thread(self.agent.handle_user_input, user_msg)
         self._handle_reply(reply)
 
     async def _handle_tool_decision(self, approved: bool) -> None:
         if not self.pending_tool:
             return
 
-        history = self.query_one("#history", TextLog)
+        history = self.query_one("#history", Log)
         decision = "approved" if approved else "denied"
-        history.write(
-            f"\nUser {decision} command: {self.pending_tool.args.get('command', '')}"
+        history.write_line("")
+        history.write_line(
+            f"User {decision} command: {self.pending_tool.args.get('command', '')}"
         )
         self._toggle_tool_buttons(disabled=True)
 
-        reply = await self.call_in_thread(
+        reply = await asyncio.to_thread(
             self.agent.handle_tool_decision, self.pending_tool, approved
         )
         self.pending_tool = None
         self._handle_reply(reply)
 
     def _handle_reply(self, reply: AgentReply) -> None:
-        history = self.query_one("#history", TextLog)
+        history = self.query_one("#history", Log)
         if reply.text:
-            history.write(f"\nAgent: {reply.text}")
+            history.write_line("")
+            history.write_line(f"Agent: {reply.text}")
+
+        for event in reply.tool_events:
+            history.write_line("")
+            history.write_line(f"Agent (tool {event.name}, {event.status}):")
+            history.write_line(event.output or "(no output)")
 
         if reply.pending_tool:
             self.pending_tool = reply.pending_tool
             cmd = self.pending_tool.args.get("command", "")
-            history.write(f"\n⚠️ Agent wants to run: {cmd}")
+            history.write_line("")
+            history.write_line(f"⚠️ Agent wants to run: {cmd}")
             self._toggle_tool_buttons(disabled=False)
         else:
             self.pending_tool = None
