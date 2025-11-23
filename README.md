@@ -1,6 +1,16 @@
 # Gemini CLI Agent with Textual UI
 
+'This is an example of using Gemini in the terminal UI environment.
+This project is meant to practice using AI agents.
+Please take a look, any feedback is more than welcome!'
+
 A sandboxed developer assistant that uses Google Gemini to plan actions, call tools (shell, read/write files), and surface results through a Textual terminal UI. It keeps all file operations within `./playground` to avoid accidental edits outside the workspace.
+
+## Screenshots
+
+![Example_1](screenshots/1.png)
+
+![Example_2](screenshots/2.png)
 
 ## Features
 
