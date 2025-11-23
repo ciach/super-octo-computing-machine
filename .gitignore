@@ -1,0 +1,21 @@
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment variables
+.env
+.env.*
+
+# OS-specific clutter
+.DS_Store
+Thumbs.db
+
+# Generated artifacts
+*.log
+*.tmp
+
