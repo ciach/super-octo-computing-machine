@@ -35,6 +35,12 @@ export GEMINI_API_KEY="your-key"
 python main.py --thinking-level LOW
 ```
 
+To serve the Textual UI in a browser (via [textual-serve](https://github.com/Textualize/textual-serve)):
+
+```bash
+python serve.py --host 0.0.0.0 --port 8000 --thinking-level LOW
+```
+
 ## Thinking Levels
 
 `main.py` accepts `--thinking-level` with values from `gemini_agent.config.THINKING_LEVEL_CHOICES` (`LOW`, `HIGH`, `AUTO`). The selected value feeds into the Gemini generation config so you can trade off reasoning depth vs. speed.

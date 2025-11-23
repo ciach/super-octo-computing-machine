@@ -31,12 +31,16 @@ class CLIApp(App):
 
     #history {
         height: 70%;
+        width: 80%;
         border: round #666;
         padding: 1;
+        overflow-x: hidden;
+        text-wrap: wrap;
     }
 
     #inputbox {
-        width: 100%;
+        height: 3;
+        width: 80%;
         border: round green;
     }
 
