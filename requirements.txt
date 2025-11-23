@@ -1,0 +1,2 @@
+google-genai>=0.3.2
+textual>=0.56.0,<1.0
